@@ -6,7 +6,7 @@ namespace PrometheusPushGateway;
 
 use GuzzleHttp\Client;
 use GuzzleHttp\ClientInterface;
-use GuzzleHttp\Exception\GuzzleException;
+use GuzzleHttp\Exception\RequestException;
 use Prometheus\CollectorRegistry;
 use Prometheus\RenderTextFormat;
 use RuntimeException;
@@ -43,7 +43,7 @@ class PushGateway
      * @param CollectorRegistry $collectorRegistry
      * @param string $job
      * @param array<string> $groupingKey
-     * @throws GuzzleException
+     * @throws RequestException
      */
     public function push(CollectorRegistry $collectorRegistry, string $job, array $groupingKey = []): void
     {
@@ -56,7 +56,7 @@ class PushGateway
      * @param CollectorRegistry $collectorRegistry
      * @param string $job
      * @param array<string> $groupingKey
-     * @throws GuzzleException
+     * @throws RequestException
      */
     public function pushAdd(CollectorRegistry $collectorRegistry, string $job, array $groupingKey = []): void
     {
@@ -68,7 +68,7 @@ class PushGateway
      * Uses HTTP POST.
      * @param string $job
      * @param array<string> $groupingKey
-     * @throws GuzzleException
+     * @throws RequestException
      */
     public function delete(string $job, array $groupingKey = []): void
     {
@@ -80,7 +80,7 @@ class PushGateway
      * @param string $job
      * @param array<string> $groupingKey
      * @param string $method
-     * @throws GuzzleException
+     * @throws RequestException
      */
     private function doRequest(?CollectorRegistry $collectorRegistry, string $job, array $groupingKey, string $method): void
     {
@@ -103,7 +103,7 @@ class PushGateway
             $renderer = new RenderTextFormat();
             $requestOptions['body'] = $renderer->render($collectorRegistry->getMetricFamilySamples());
         }
-        $response = $this->client->request($method, $url, $requestOptions);
+        $response = $this->client->send($this->client->createRequest($method, $url, $requestOptions));
         $statusCode = $response->getStatusCode();
         if (!in_array($statusCode, [200, 202], true)) {
             $msg = "Unexpected status code "
