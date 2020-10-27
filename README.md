@@ -53,3 +53,7 @@ Execute the tests:
 ```
 docker-compose run phpunit vendor/bin/phpunit tests/Test/
 ```
+
+### Guzzle 5 version
+This version runs on the old Guzzle 5 library
+
